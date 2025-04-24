@@ -1590,6 +1590,26 @@ func populateRosaHcpClusterState(ctx context.Context, object *cmv1.Cluster, stat
 		state.Proxy = nil
 	}
 
+	// Set state.Proxy to nil if all its fields are empty or null
+	if state.Proxy != nil {
+		empty := true
+		if !state.Proxy.HttpProxy.IsNull() && !state.Proxy.HttpProxy.IsUnknown() && state.Proxy.HttpProxy.ValueString() != "" {
+			empty = false
+		}
+		if !state.Proxy.HttpsProxy.IsNull() && !state.Proxy.HttpsProxy.IsUnknown() && state.Proxy.HttpsProxy.ValueString() != "" {
+			empty = false
+		}
+		if !state.Proxy.NoProxy.IsNull() && !state.Proxy.NoProxy.IsUnknown() && state.Proxy.NoProxy.ValueString() != "" {
+			empty = false
+		}
+		if !state.Proxy.AdditionalTrustBundle.IsNull() && !state.Proxy.AdditionalTrustBundle.IsUnknown() && state.Proxy.AdditionalTrustBundle.ValueString() != "" {
+			empty = false
+		}
+		if empty {
+			state.Proxy = nil
+		}
+	}
+
 	machineCIDR, ok := object.Network().GetMachineCIDR()
 	if ok {
 		state.MachineCIDR = types.StringValue(machineCIDR)
